@@ -29,7 +29,7 @@ export default class Bar extends React.Component<Props, State> {
     this.state = {
       y: props.y + props.height,
       height: 0,
-      fillOpacity: 0.5,
+      fillOpacity: 0,
     };
   }
 
@@ -58,7 +58,7 @@ export default class Bar extends React.Component<Props, State> {
       node.transition(this.transition)
         .attr('height', 0)
         .attr('y', y + height)
-        .style('fillOpacity', 0.5)
+        .style('fillOpacity', 0)
         .transition(this.transition)
         .attr('height', height)
         .attr('y', y)

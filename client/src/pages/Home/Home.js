@@ -4,6 +4,7 @@ import Styles from './HomeStyles';
 
 const pages = [
   { url: '/bar-chart', name: 'Bar Chart' },
+  { url: '/nyc-crime', name: 'NYC Crime' },
 ];
 
 const Home = ({

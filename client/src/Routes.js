@@ -3,6 +3,7 @@ import { Route, Switch, Redirect } from 'react-router';
 import { BrowserRouter } from 'react-router-dom';
 import Home from './pages/Home';
 import BarChart from './pages/BarChart';
+import NYCCrime from './pages/NYCCrime';
 
 const Routes = () => (
   <BrowserRouter>
@@ -10,6 +11,7 @@ const Routes = () => (
       <Redirect path="/" exact to="/home" />
       <Route path="/home" component={Home} />
       <Route path="/bar-chart" component={BarChart} />
+      <Route path="/nyc-crime" component={NYCCrime} />
       <Route component={Home} />
     </Switch>
   </BrowserRouter>
