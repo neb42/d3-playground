@@ -141,11 +141,11 @@ export default class NYCCrime extends React.Component<Props, State> {
     const { scales, ready, data } = this.state;
     return (
       <svg ref={node => this.node = node} width={width} height={height} >
-        {/* <Axes
-          scales={scale}
+        <Axes
+          scales={scales}
           margins={this.margins}
           svgDimensions={{ width, height }}
-        /> */}
+        />
         {ready && boros.map(b => (
           <Line
             color={colors[b]}

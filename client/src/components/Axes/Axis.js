@@ -33,9 +33,9 @@ export default class Axis extends React.Component<Props> {
     const axisType = `axis${orient}`;
     const axis = d3Axis[axisType]()
       .scale(scale)
-      .tickSize(-1 * tickSize)
-      .tickPadding([12])
-      .ticks([4]);
+      // .tickSize(-1 * tickSize)
+      // .tickPadding([12])
+      // .ticks([4]);
 
     d3Select(this.axisElement).call(axis);
   }
