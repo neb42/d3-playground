@@ -72,7 +72,8 @@ export default class NYCCrime extends React.Component<Props, State> {
     const data = await Promise.all(boros.map(async b => {
       const response = await fetch(`/files/nyc-crimes-${b}.csv`);
       const csvText = await response.text();
-      const data = csvParse(csvText);
+      const data = csvParse(csvText)
+        .sort((a, b) => new Date(a[xKey]) - new Date(b[xKey]));
       return [
         b,
         // data,
