@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react';
-import { PALETTE } from '@asidatascience/adler-ui';
+import { Toggle, PALETTE } from '@asidatascience/adler-ui';
 import { extent as d3ArrayExtent } from 'd3-array';
 import { scaleTime, scaleLinear } from 'd3-scale';
 import { csvParse } from 'd3-dsv';
@@ -18,6 +18,7 @@ type State = {
   ready: boolean,
   scales: Object,
   data: Object,
+  boros: Object,
 }
 
 const N = 100;
@@ -56,6 +57,13 @@ export default class NYCCrime extends React.Component<Props, State> {
       },
       data: {},
       ready: false,
+      boros: {
+        'QUEENS': true,
+        'BRONX': true,
+        'BROOKLYN': true,
+        'MANHATTAN': true,
+        'STATEN ISLAND': true,
+      },
     };
     this.margins = { top: 50, right: 20, bottom: 100, left: 60 };
   }
@@ -139,25 +147,44 @@ export default class NYCCrime extends React.Component<Props, State> {
   render() {
     // const { height, width } = this.props;
     const { scales, ready, data } = this.state;
+    const enabledBoros = boros.filter(b => this.state.boros[b]);
     return (
-      <svg ref={node => this.node = node} width={width} height={height} >
-        <Axes
-          scales={scales}
-          margins={this.margins}
-          svgDimensions={{ width, height }}
-        />
-        {ready && boros.map(b => (
-          <Line
-            color={colors[b]}
-            data={data[b]}
+      <div style={{ display: 'flex' }}>
+        <svg ref={node => this.node = node} width={width} height={height} >
+          <Axes
             scales={scales}
-            xKey={xKey}
-            yKey={yKey}
             margins={this.margins}
-            dimensions={{ width, height }}
+            svgDimensions={{ width, height }}
           />
-        ))}
-      </svg>
+          {ready && enabledBoros.map(b => (
+            <Line
+              color={colors[b]}
+              data={data[b]}
+              scales={scales}
+              xKey={xKey}
+              yKey={yKey}
+              margins={this.margins}
+              dimensions={{ width, height }}
+            />
+          ))}
+        </svg>
+        <div>
+          {boros.map(b => (
+            <div style={{ display: 'flex', marginBottom: '10px' }}>
+              <Toggle
+                checked={true}
+                onChange={v => this.setState(prevState => ({
+                  boros: {
+                    ...prevState.boros,
+                    [b]: v,
+                  },
+                }))}
+              />
+              <span style={{ color: colors[b], marginLeft: '5px' }}>{b}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     );
   }
 }
