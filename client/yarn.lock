@@ -2,12 +2,13 @@
 # yarn lockfile v1
 
 
-"@asidatascience/adler-ui@^0.0.55":
-  version "0.0.55"
-  resolved "https://registry.yarnpkg.com/@asidatascience/adler-ui/-/adler-ui-0.0.55.tgz#bdd3a591fb649d84a5a3d0aed26bea2c0023ca44"
+"@asidatascience/adler-ui@^0.0.62":
+  version "0.0.62"
+  resolved "https://registry.yarnpkg.com/@asidatascience/adler-ui/-/adler-ui-0.0.62.tgz#2769728bd9279810a125c7c267bc35820c33d9ee"
   dependencies:
     color "^3.0.0"
     hex-to-rgba "^1.0.1"
+    lodash.uniq "^4.5.0"
     react-router-dom "^4.2.2"
     react-select "^1.2.1"
     redux-form "^7.1.2"

@@ -4,7 +4,7 @@
   "proxy": "http://localhost:5000/",
   "private": true,
   "dependencies": {
-    "@asidatascience/adler-ui": "^0.0.55",
+    "@asidatascience/adler-ui": "^0.0.62",
     "d3-array": "^1.2.1",
     "d3-axis": "^1.0.8",
     "d3-brush": "^1.0.4",
