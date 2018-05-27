@@ -2,37 +2,87 @@
 
 import React from 'react';
 import { line as d3Line } from 'd3-shape';
+import { select as d3Select } from 'd3-selection';
 
 type Props = {
-  color: string,
   data: any,
   scales: Object,
-  xKey: string,
-  yKey: string,
-  dimensions: Object,
-  margins: Object,
+  color: string,
+  xFunc: (d: Object) => any,
+  yFunc: (d: Object) => any,
+  onMouseOver: Function,
+  onMouseOut: Function,
 };
 
-export default class Line extends React.Component<Props> {
-  props: Props;
-  render() {
-    const { color, data, margins, dimensions, scales, xKey, yKey } = this.props;
+type State = {
+  lineStyle: Object,
+};
 
-    const height = dimensions.height - margins.top - margins.bottom;
-    const width = dimensions.width  - margins.left - margins.right;
+const defaultLineStyle = {
+  fill: 'transparent',
+  strokeWidth: 2,
+  strokeOpactiy: 0.3,
+};
+
+export default class Line extends React.Component<Props, State> {
+  props: Props;
+  state: State;
+  lineElement: any;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      lineStyle: {
+        ...defaultLineStyle,
+        stroke: props.color,
+      },
+    };
+  }
+
+  handleMouseOver = () => {
+    const { onMouseOver } = this.props;
+    onMouseOver && onMouseOver();
+  }
+
+  handleMouseOut = () => {
+    const { onMouseOut } = this.props;
+    onMouseOut && onMouseOut();
+  }
+
+  handleRef = c => {
+    this.lineElement = c;
+    d3Select(this.lineElement)
+      .on('mouseover', this.handleMouseOver)
+      .on('mouseout', this.handleMouseOut)
+  }
+
+  setLineStyle = (style: Object) => {
+    this.setState({
+      lineStyle: {
+        ...defaultLineStyle,
+        stroke: this.props.color,
+        ...style,
+      },
+    });
+  };
+
+  render() {
+    const { data, scales, xFunc, yFunc } = this.props;
+    const { lineStyle } = this.state;
 
     const line = d3Line()
-      .x(d => scales.x(new Date(d[xKey])))
-      .y(d => scales.y(d[yKey]));
+      .x(d => scales.x(xFunc ? xFunc(d) : d))
+      .y(d => scales.y(yFunc ? yFunc(d) : d));
 
     const newline = line(data);
 
     return(
-      <path className="line" d={newline} style={{
-        fill: 'transparent',
-        stroke: color,
-        strokeWidth: 2.
-      }}></path>
+      <path
+        className="line"
+        ref={this.handleRef}
+        d={newline}
+        style={lineStyle}
+      ></path>
     );
   }
 }

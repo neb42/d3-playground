@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react';
-import { Toggle, PALETTE } from '@asidatascience/adler-ui';
+import { PALETTE } from '@asidatascience/adler-ui';
 import { extent as d3ArrayExtent } from 'd3-array';
 import { scaleTime, scaleLinear } from 'd3-scale';
 import { csvParse } from 'd3-dsv';
@@ -18,11 +18,8 @@ type State = {
   ready: boolean,
   scales: Object,
   data: Object,
-  boros: Object,
 }
 
-const N = 100;
-const maxValue = 100;
 const height = 1000;
 const width = 1500;
 const xKey = 'RPT_DT';
@@ -41,12 +38,20 @@ const colors = {
   'MANHATTAN': PALETTE.blue,
   'STATEN ISLAND': PALETTE.purple,
 }
+const populations = {
+  'QUEENS': 2250002,
+  'BRONX': 1385108,
+  'BROOKLYN': 2552911,
+  'MANHATTAN': 1585873,
+  'STATEN ISLAND': 468730,
+}
 
 export default class NYCCrime extends React.Component<Props, State> {
   props: Props;
   state: State;
   node: Element | null;
   margins: Object;
+  lines: Object = {};
 
   constructor(props: Props) {
     super(props);
@@ -57,13 +62,6 @@ export default class NYCCrime extends React.Component<Props, State> {
       },
       data: {},
       ready: false,
-      boros: {
-        'QUEENS': true,
-        'BRONX': true,
-        'BROOKLYN': true,
-        'MANHATTAN': true,
-        'STATEN ISLAND': true,
-      },
     };
     this.margins = { top: 50, right: 20, bottom: 100, left: 60 };
   }
@@ -119,6 +117,8 @@ export default class NYCCrime extends React.Component<Props, State> {
 
     let minX, maxX, minY, maxY;
     boros.forEach(b => {
+      const boroPop = populations[b];
+
       const [ newMinX, newMaxX ] = d3ArrayExtent(data[b], d => new Date(d[xKey]));
       if (!minX || minX > newMinX) {
         minX = newMinX;
@@ -128,15 +128,13 @@ export default class NYCCrime extends React.Component<Props, State> {
       }
 
       const [ newMinY, newMaxY ] = d3ArrayExtent(data[b], d => d[yKey]);
-      if (!minY || minY > newMinY) {
-        minY = newMinY;
+      if (!minY || minY > newMinY/ boroPop) {
+        minY = newMinY / boroPop;
       }
-      if (!maxY || maxY < newMaxY) {
-        maxY = newMaxY;
+      if (!maxY || maxY < newMaxY / boroPop) {
+        maxY = newMaxY / boroPop;
       }
     });
-
-    console.log(minX, maxX, minY, maxY)
 
     x = x.domain([ minX, maxX ]);
     y = y.domain([ minY, maxY ]);
@@ -147,7 +145,6 @@ export default class NYCCrime extends React.Component<Props, State> {
   render() {
     // const { height, width } = this.props;
     const { scales, ready, data } = this.state;
-    const enabledBoros = boros.filter(b => this.state.boros[b]);
     return (
       <div style={{ display: 'flex' }}>
         <svg ref={node => this.node = node} width={width} height={height} >
@@ -156,32 +153,23 @@ export default class NYCCrime extends React.Component<Props, State> {
             margins={this.margins}
             svgDimensions={{ width, height }}
           />
-          {ready && enabledBoros.map(b => (
+          {ready && boros.map(b => (
             <Line
-              color={colors[b]}
+              key={`line-${b}`}
+              ref={c => this.lines[b] = c}
               data={data[b]}
               scales={scales}
-              xKey={xKey}
-              yKey={yKey}
-              margins={this.margins}
-              dimensions={{ width, height }}
+              color={colors[b]}
+              xFunc={d => new Date(d[xKey])}
+              yFunc={d => d[yKey] / populations[b]}
+              onMouseOver={() => this.lines[b].setLineStyle({ opactiy: 1 })}
+              onMouseOut={() => this.lines[b].setLineStyle({})}
             />
           ))}
         </svg>
-        <div>
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
           {boros.map(b => (
-            <div style={{ display: 'flex', marginBottom: '10px' }}>
-              <Toggle
-                checked={true}
-                onChange={v => this.setState(prevState => ({
-                  boros: {
-                    ...prevState.boros,
-                    [b]: v,
-                  },
-                }))}
-              />
-              <span style={{ color: colors[b], marginLeft: '5px' }}>{b}</span>
-            </div>
+            <span key={`label-${b}`} style={{ color: colors[b], marginBottom: '10px' }}>{b}</span>
           ))}
         </div>
       </div>
