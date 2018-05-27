@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { scaleBand, scaleLinear } from 'd3-scale';
-import { PALETTE } from '@asidatascience/adler-ui';
 
 import { Axes } from '../Axes';
 import Bars from './Bars';
