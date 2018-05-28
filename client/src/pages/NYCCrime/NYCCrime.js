@@ -108,11 +108,9 @@ export default class NYCCrime extends React.Component<Props, State> {
     // const { height, width } = this.props;
 
     let x = prevScale.x
-      .domain(d3ArrayExtent(data, d => new Date(d[xKey])))
       .range([ this.margins.left, width - this.margins.right ]);
 
     let y = prevScale.y
-      .domain(d3ArrayExtent(data, d => d[yKey]))
       .range([ height - this.margins.bottom, this.margins.top ]);
 
     let minX, maxX, minY, maxY;
@@ -162,8 +160,8 @@ export default class NYCCrime extends React.Component<Props, State> {
               color={colors[b]}
               xFunc={d => new Date(d[xKey])}
               yFunc={d => d[yKey] / populations[b]}
-              onMouseOver={() => this.lines[b].setLineStyle({ opactiy: 1 })}
-              onMouseOut={() => this.lines[b].setLineStyle({})}
+              dimensions={{ width, height }}
+              margins={this.margins}
             />
           ))}
         </svg>
