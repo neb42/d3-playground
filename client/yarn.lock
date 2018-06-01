@@ -2013,7 +2013,7 @@ d3-svg-legend@^2.25.6:
     d3-selection "1.0.2"
     d3-transition "1.0.3"
 
-d3-time-format@2:
+d3-time-format@2, d3-time-format@^2.1.1:
   version "2.1.1"
   resolved "https://registry.yarnpkg.com/d3-time-format/-/d3-time-format-2.1.1.tgz#85b7cdfbc9ffca187f14d3c456ffda268081bb31"
   dependencies:
