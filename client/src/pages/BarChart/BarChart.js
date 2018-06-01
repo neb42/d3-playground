@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import { Button } from '@asidatascience/adler-ui';
-import BarChartComponent from '../../components/BarChart';
+import { BarChart as BarChartComponent } from '../../components/BarChart';
 
 type Props = {
 

@@ -83,14 +83,14 @@ export default class BarChart extends React.Component<Props, State> {
         <Axes
           scales={scale}
           margins={this.margins}
-          svgDimensions={{ width, height }}
+          dimensions={{ width, height }}
         />
         {ready && <Bars
           scales={scale}
           margins={this.margins}
           data={data}
           maxValue={maxValue}
-          svgDimensions={{ width, height }}
+          dimensions={{ width, height }}
         />}
       </svg>
     );

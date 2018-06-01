@@ -12,6 +12,8 @@ type Props = {
   height: number,
   width: number,
   fill: string,
+  transition: boolean,
+  fillOpacity?: number,
 };
 
 type State = {
@@ -24,35 +26,40 @@ export default class Bar extends React.Component<Props, State> {
   props: Props;
   state: State;
 
-  constructor(props: Props) {
-    super(props);
-    this.state = {
-      y: props.y + props.height,
-      height: 0,
-      fillOpacity: 0,
-    };
-  }
-
   transition = d3Transition()
     .duration(750)
     .ease(d3EaseCubicInOut);
 
-  componentDidMount() {
-    const { height, y } = this.props;
-    const node = d3Select(ReactDOM.findDOMNode(this));
+  constructor(props: Props) {
+    super(props);
+    const { y, height, transition, fillOpacity } = props;
+    this.state = {
+      y: transition ? y + height : y,
+      height: transition ? 0 : height,
+      fillOpacity: transition ? 0 : fillOpacity || 1,
+    };
+  }
 
-    node.transition(this.transition)
-      .attr('height', height)
-      .attr('y', y)
-      .style('fillOpacity', 1)
-      .on('end', () => {
-        this.setState({ height, y, fillOpacity: 1});
-      });
+  componentDidMount() {
+    const { height, y, transition } = this.props;
+
+    if (transition) {
+      const node = d3Select(ReactDOM.findDOMNode(this));
+
+      node.transition(this.transition)
+        .attr('height', height)
+        .attr('y', y)
+        .style('fillOpacity', 1)
+        .on('end', () => {
+          this.setState({ height, y, fillOpacity: 1 });
+        });
+    }
   }
 
   componentWillReceiveProps(nextProps: Props) {
-    if (nextProps.height !== this.props.height || nextProps.y !== this.props.y) {
-      const { height, y } = nextProps;
+    const { height, y, transition } = nextProps;
+    
+    if (transition && (height !== this.props.height || y !== this.props.y)) {
       const node = d3Select(ReactDOM.findDOMNode(this));
 
       node.transition(this.transition)
@@ -69,9 +76,15 @@ export default class Bar extends React.Component<Props, State> {
     }
   }
 
+  get fillOpacity() {
+    const { fillOpacity, transition } = this.props;
+    const { fillOpacity: transitionFillOpacity } = this.state;
+    return transition ? transitionFillOpacity : fillOpacity || 1;
+  }
+
   render() {
     const { x, width, fill } = this.props;
-    const { y, height, fillOpacity } = this.state;
+    const { y, height  } = this.state;
     return (
       <rect
         x={x}
@@ -79,7 +92,7 @@ export default class Bar extends React.Component<Props, State> {
         height={height}
         width={width}
         fill={fill}
-        style={{ fillOpacity }}
+        style={{ fillOpacity: this.fillOpacity }}
       />
     );
   }

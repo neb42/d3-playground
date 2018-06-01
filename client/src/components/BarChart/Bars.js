@@ -20,7 +20,7 @@ type Props = {
     bottom: number,
     left: number,
   },
-  svgDimensions: {
+  dimensions: {
     width: number,
     height: number,
   },
@@ -29,21 +29,21 @@ type Props = {
 
 export default class Bars extends React.Component<Props> {
   props: Props;
-  colorScale;
+  colorScale: Function;
 
   constructor(props: Props) {
     super(props);
 
     this.colorScale = scaleLinear()
-      .domain([0, this.props.maxValue])
+      .domain([ 0, this.props.maxValue ])
       .range([PALETTE.blue])
       .interpolate(interpolateLab);
   }
 
   render() {
-    const { scales, margins, data, svgDimensions } = this.props;
+    const { scales, margins, data, dimensions } = this.props;
     const { x: xScale, y: yScale } = scales;
-    const { height } = svgDimensions;
+    const { height } = dimensions;
 
     return (
       <TransitionGroup component="g">
@@ -56,6 +56,7 @@ export default class Bars extends React.Component<Props> {
             height={height - margins.bottom - yScale(datum.value)}
             width={xScale.bandwidth()}
             fill={this.colorScale(datum.value)}
+            transition={true}
           />
         ))}
       </TransitionGroup>

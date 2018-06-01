@@ -14,14 +14,14 @@ type Props = {
     bottom: number,
     left: number,
   },
-  svgDimensions: {
+  dimensions: {
     width: number,
     height: number,
   },
 };
 
-const Axes = ({ scales, margins, svgDimensions }: Props) => {
-  const { height, width } = svgDimensions;
+const Axes = ({ scales, margins, dimensions }: Props) => {
+  const { height, width } = dimensions;
 
   const xProps = {
     orient: 'Bottom',

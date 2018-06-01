@@ -82,7 +82,6 @@ export default class NYCCrime extends React.Component<Props, State> {
         .sort((a, b) => new Date(a[xKey]) - new Date(b[xKey]));
       return [
         b,
-        // data,
         d3Nest()
           .key(d => d[xKey])
           .entries(data).map(d => ({ [xKey]: d.key, [yKey]: d.values.length })),
@@ -105,8 +104,6 @@ export default class NYCCrime extends React.Component<Props, State> {
   }
 
   calculateScale = (prevScale: Object, data: any) => {
-    // const { height, width } = this.props;
-
     let x = prevScale.x
       .range([ this.margins.left, width - this.margins.right ]);
 
@@ -141,7 +138,6 @@ export default class NYCCrime extends React.Component<Props, State> {
   }
 
   render() {
-    // const { height, width } = this.props;
     const { scales, ready, data } = this.state;
     return (
       <div style={{ display: 'flex' }}>
@@ -149,7 +145,7 @@ export default class NYCCrime extends React.Component<Props, State> {
           <Axes
             scales={scales}
             margins={this.margins}
-            svgDimensions={{ width, height }}
+            dimensions={{ width, height }}
           />
           {ready && boros.map(b => (
             <Line
