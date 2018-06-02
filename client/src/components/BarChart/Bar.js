@@ -33,10 +33,14 @@ export default class Bar extends React.Component<Props, State> {
   constructor(props: Props) {
     super(props);
     const { y, height, transition, fillOpacity } = props;
-    this.state = {
-      y: transition ? y + height : y,
-      height: transition ? 0 : height,
-      fillOpacity: transition ? 0 : fillOpacity || 1,
+    this.state = transition ? {
+      y: y + height,
+      height: 0,
+      fillOpacity: 0,
+    } : {
+      y,
+      height,
+      fillOpacity: fillOpacity || 1,
     };
   }
 
@@ -58,7 +62,7 @@ export default class Bar extends React.Component<Props, State> {
 
   componentWillReceiveProps(nextProps: Props) {
     const { height, y, transition } = nextProps;
-    
+
     if (transition && (height !== this.props.height || y !== this.props.y)) {
       const node = d3Select(ReactDOM.findDOMNode(this));
 
@@ -82,14 +86,25 @@ export default class Bar extends React.Component<Props, State> {
     return transition ? transitionFillOpacity : fillOpacity || 1;
   }
 
+  get height() {
+    const { height, transition } = this.props;
+    const { height: transitionHeight } = this.state;
+    return transition ? transitionHeight : height;
+  }
+
+  get y() {
+    const { y, transition } = this.props;
+    const { y: transitionY } = this.state;
+    return transition ? transitionY : y;
+  }
+
   render() {
     const { x, width, fill } = this.props;
-    const { y, height  } = this.state;
     return (
       <rect
         x={x}
-        y={y}
-        height={height}
+        y={this.y}
+        height={this.height}
         width={width}
         fill={fill}
         style={{ fillOpacity: this.fillOpacity }}
