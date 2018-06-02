@@ -10,9 +10,11 @@ import { scaleTime, scaleLinear } from 'd3-scale';
 import { csvParse } from 'd3-dsv';
 import { nest as d3Nest } from 'd3-collection';
 import { timeMonth as d3TimeMonth } from 'd3-time';
+import { timeFormat as d3TimeFormat } from 'd3-time-format';
 
 import Line from '../../components/Line';
 import { Axes } from '../../components/Axes';
+import BarTooltip from '../../components/BarTooltip';
 
 type Props = {
 
@@ -21,7 +23,8 @@ type Props = {
 type State = {
   ready: boolean,
   scales: Object,
-  data: Object,
+  data: Array<Object>,
+  avgData: Array<Object>,
 }
 
 const height = 1000;
@@ -44,7 +47,8 @@ export default class Crypto extends React.Component<Props, State> {
         x: scaleTime(),
         y: scaleLinear(),
       },
-      data: {},
+      data: [],
+      avgData: [],
       ready: false,
     };
     this.margins = { top: 50, right: 20, bottom: 100, left: 60 };
@@ -64,26 +68,33 @@ export default class Crypto extends React.Component<Props, State> {
     const data = csvParse(csvText)
       .filter(d => d.symbol === 'BTC')
       .sort((a, b) => new Date(a[xKey]) - new Date(b[xKey]));
-    return d3Nest()
+
+    const rawData = d3Nest()
       .key(d => new Date(d[xKey]))
       .rollup(v => d3Mean(v, d => d[yKey]))
       .entries(data);
+
+    const avgData = d3Nest()
+      .key(d => d3TimeMonth(new Date(d[xKey])))
+      .rollup(v => d3Mean(v, d => d[yKey]))
+      .entries(data);
+
+    return [ rawData, avgData ];
   };
 
   createChart = async () => {
-    const data = await this.generateData();
+    const [ rawData, avgData ] = await this.generateData();
     this.setState(prevState => {
       return {
-        data,
-        scales: this.calculateScale(prevState.scales, data),
+        data: rawData,
+        avgData: avgData,
+        scales: this.calculateScale(prevState.scales, rawData),
         ready: true,
       };
     });
   }
 
   calculateScale = (prevScale: Object, data: any) => {
-    // const { height, width } = this.props;
-
     let x = prevScale.x
       .domain(d3ArrayExtent(data, d => new Date(d.key)))
       .range([ this.margins.left, width - this.margins.right ]);
@@ -96,7 +107,6 @@ export default class Crypto extends React.Component<Props, State> {
   }
 
   render() {
-    // const { height, width } = this.props;
     const { scales, ready, data } = this.state;
     return (
       <div style={{ display: 'flex' }}>
@@ -104,7 +114,7 @@ export default class Crypto extends React.Component<Props, State> {
           <Axes
             scales={scales}
             margins={this.margins}
-            svgDimensions={{ width, height }}
+            dimensions={{ width, height }}
           />
           <Line
             ref={c => this.line = c}
@@ -115,6 +125,22 @@ export default class Crypto extends React.Component<Props, State> {
             yFunc={d => d.value}
             dimensions={{ width, height }}
             margins={this.margins}
+          />
+          <BarTooltip
+            data={data}
+            scales={scales}
+            xFunc={d => new Date(d.key)}
+            yFunc={d => d.value}
+            dimensions={{ width, height }}
+            margins={this.margins}
+            getBucket={x => {
+              const xLow = d3TimeMonth(x);
+              const xHigh = d3TimeMonth.offset(xLow, 1);
+              const format = d3TimeFormat('%Y-%m-%dT%H:%M:%SZ');
+              const avgDataPoint = this.state.avgData.find(d => format(new Date(d.key)) === format(new Date(xLow)));
+              const avgValue = avgDataPoint ? avgDataPoint.value : null;
+              return [ xLow, xHigh, avgValue ];
+            }}
           />
         </svg>
       </div>
