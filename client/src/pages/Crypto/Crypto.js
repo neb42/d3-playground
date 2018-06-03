@@ -24,7 +24,7 @@ type State = {
   ready: boolean,
   scales: Object,
   data: Array<Object>,
-  avgData: Array<Object>,
+  avgData: Object,
 }
 
 const height = 1000;
@@ -77,7 +77,7 @@ export default class Crypto extends React.Component<Props, State> {
     const avgData = d3Nest()
       .key(d => d3TimeMonth(new Date(d[xKey])))
       .rollup(v => d3Mean(v, d => d[yKey]))
-      .entries(data);
+      .object(data);
 
     return [ rawData, avgData ];
   };
@@ -129,16 +129,14 @@ export default class Crypto extends React.Component<Props, State> {
           <BarTooltip
             data={data}
             scales={scales}
-            xFunc={d => new Date(d.key)}
-            yFunc={d => d.value}
+            xFunc={d => d && new Date(d.key)}
+            yFunc={d => d && d.value}
             dimensions={{ width, height }}
             margins={this.margins}
             getBucket={x => {
               const xLow = d3TimeMonth(x);
               const xHigh = d3TimeMonth.offset(xLow, 1);
-              const format = d3TimeFormat('%Y-%m-%dT%H:%M:%SZ');
-              const avgDataPoint = this.state.avgData.find(d => format(new Date(d.key)) === format(new Date(xLow)));
-              const avgValue = avgDataPoint ? avgDataPoint.value : null;
+              const avgValue = this.state.avgData[xLow];
               return [ xLow, xHigh, avgValue ];
             }}
           />
